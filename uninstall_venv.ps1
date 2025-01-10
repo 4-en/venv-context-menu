@@ -31,12 +31,12 @@ $regKeyPath = "HKCR\Directory\shell\$contextMenuName"
 $commandKeyPath = "HKCR\Directory\shell\$contextMenuName\command"
 
 # remove the context menu item
-Remove-Item -Path "Registry::$commandKeyPath" -Force
-Remove-Item -Path "Registry::$regKeyPath" -Force
+Remove-Item -Path "Registry::$commandKeyPath" -Force -Recurse
+Remove-Item -Path "Registry::$regKeyPath" -Force -Recurse
 
 # remove the uninstall script from the registry
 $uninstallRegKeyPath = "HKCR\Directory\shell\$contextMenuName\command\uninstall"
-Remove-Item -Path "Registry::$uninstallRegKeyPath" -Force
+Remove-Item -Path "Registry::$uninstallRegKeyPath" -Force -Recurse
 
 # remove the app data directory
 Remove-Item -Path $appDataDir -Force -Recurse

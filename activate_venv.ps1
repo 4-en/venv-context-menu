@@ -1,3 +1,5 @@
+
+
 # Get the path to the .venv directory from the first argument
 param(
     [Parameter(Mandatory=$true)]
@@ -10,12 +12,10 @@ if (-Not (Test-Path "$VenvPath")) {
     exit 1
 }
 
-# Determine the activation script based on the operating system
-$activateScript = if ($IsWindows) {
-    Join-Path -Path $VenvPath -ChildPath "Scripts\Activate.ps1"
-} else {
-    Join-Path -Path $VenvPath -ChildPath "bin/activate"
-}
+# Determine the activation script location
+$activateScript = Join-Path -Path $VenvPath -ChildPath "Scripts\Activate.ps1"
+$parentDir = Split-Path -Path $VenvPath -Parent
+
 
 # Verify the activation script exists
 if (-Not (Test-Path $activateScript)) {
@@ -25,8 +25,9 @@ if (-Not (Test-Path $activateScript)) {
 
 # Source the activation script
 try {
-    & $activateScript
-    Write-Host "Virtual environment activated from: $VenvPath" -ForegroundColor Green
+    Write-Host "Activating venv: $VenvPath" -ForegroundColor Green
+    # open new powershell session to activate the virtual environment
+    powershell -NoExit -Command "cd $parentDir; . $activateScript"
 } catch {
     Write-Error "Failed to activate the virtual environment: $_"
     exit 1
