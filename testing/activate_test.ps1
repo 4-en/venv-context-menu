@@ -1,0 +1,1 @@
+powershell -NoExit -Command "cd '.'; venv\Scripts\Activate.ps1"
