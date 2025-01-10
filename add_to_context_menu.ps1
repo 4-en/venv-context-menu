@@ -16,47 +16,47 @@ function Ensure-Administrator {
 Ensure-Administrator
 
 # Variables
-$appDataDir = "$env:APPDATA\MyPythonScript"
-$contextMenuName = "Run Python Script"
-$scriptName = "process_folder.py"
-$batchFileName = "run_script.bat"
+$appDataDir = "$env:APPDATA\.activate_venv_menu"
+$resolvedAppDataDir = $appDataDir
+$contextMenuName = "Activate VEnv"
+$activateScriptName = "activate_venv.ps1"
+$uninstallScriptName = "uninstall_venv.ps1"
+$iconName = "venv_folder_python.ico"
 
-# Resolve the full path for %APPDATA%
-$resolvedAppDataDir = [System.IO.Path]::Combine($env:APPDATA, "MyPythonScript")
-$batchFileFullPath = [System.IO.Path]::Combine($resolvedAppDataDir, $batchFileName)
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$activateScriptSource = [System.IO.Path]::Combine($scriptDir, $activateScriptName)
+$uninstallScriptSource = [System.IO.Path]::Combine($scriptDir, $uninstallScriptName)
+$iconSource = [System.IO.Path]::Combine($scriptDir, $iconName)
+
+$activateScriptFullPath = [System.IO.Path]::Combine($resolvedAppDataDir, $activateScriptName)
+$uninstallScriptFullPath = [System.IO.Path]::Combine($resolvedAppDataDir, $uninstallScriptName)
+$iconFullPath = [System.IO.Path]::Combine($resolvedAppDataDir, $iconName)
 
 # Create the directory in %APPDATA%
 if (-not (Test-Path -Path $resolvedAppDataDir)) {
     New-Item -ItemType Directory -Path $resolvedAppDataDir | Out-Null
 }
 
-# Save the Python script
-$pythonScriptContent = @"
-import sys
-import os
+# Copy the activate script to the app data directory
+if (Test-Path -Path $activateScriptSource) {
+    Copy-Item -Path $activateScriptSource -Destination $resolvedAppDataDir -Force
+} else {
+    Write-Error "Source file not found: $activateScriptSource"
+}
 
-def main(folder_path):
-    if os.path.isdir(folder_path):
-        print(f"Processing folder: {folder_path}")
-        # Add your script logic here
-    else:
-        print("The provided path is not a valid folder.")
+# Copy the uninstall script to the app data directory
+if (Test-Path -Path $uninstallScriptSource) {
+    Copy-Item -Path $uninstallScriptSource -Destination $resolvedAppDataDir -Force
+} else {
+    Write-Error "Source file not found: $uninstallScriptSource"
+}
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
-    else:
-        print("No folder path provided.")
-"@
-Set-Content -Path "$resolvedAppDataDir\$scriptName" -Value $pythonScriptContent
-
-# Save the batch file to call the Python script
-$batchFileContent = @"
-@echo off
-echo "$resolvedAppDataDir\$scriptName" "%1"
-pause
-"@
-Set-Content -Path "$batchFileFullPath" -Value $batchFileContent
+# Copy the icon to the app data directory
+if (Test-Path -Path $iconSource) {
+    Copy-Item -Path $iconSource -Destination $resolvedAppDataDir -Force
+} else {
+    Write-Error "Source file not found: $iconSource"
+}
 
 # Define the registry path for context menu
 $regKeyPath = "HKCR\Directory\shell\$contextMenuName"
@@ -65,10 +65,19 @@ $commandKeyPath = "HKCR\Directory\shell\$contextMenuName\command"
 # Add the context menu item
 New-Item -Path "Registry::$regKeyPath" -Force | Out-Null
 Set-ItemProperty -Path "Registry::$regKeyPath" -Name "(Default)" -Value $contextMenuName
-Set-ItemProperty -Path "Registry::$regKeyPath" -Name "Icon" -Value "C:\Windows\System32\shell32.dll,-153"
+Set-ItemProperty -Path "Registry::$regKeyPath" -Name "Icon" -Value "`"$iconFullPath`""
 
 # Add the command to execute the batch file (use full resolved path)
 New-Item -Path "Registry::$commandKeyPath" -Force | Out-Null
-Set-ItemProperty -Path "Registry::$commandKeyPath" -Name "(Default)" -Value "`"$batchFileFullPath`" `%1"
+Set-ItemProperty -Path "Registry::$commandKeyPath" -Name "(Default)" -Value "`"powershell.exe`" -NoProfile -ExecutionPolicy Bypass -File `"$activateScriptFullPath`" -VenvPath `"%1`""
+
+
+# register the uninstall script in the registry
+$uninstallRegKeyPath = "HKCR\Directory\shell\$contextMenuName\command\uninstall"
+New-Item -Path "Registry::$uninstallRegKeyPath" -Force | Out-Null
+Set-ItemProperty -Path "Registry::$uninstallRegKeyPath" -Name "(Default)" -Value "`"$uninstallScriptFullPath`""
+Set-ItemProperty -Path "Registry::$uninstallRegKeyPath" -Name "Icon" -Value "`"$iconFullPath`""
+Set-ItemProperty -Path "Registry::$uninstallRegKeyPath" -Name "IsolatedCommand" -Value "`"$uninstallScriptFullPath`""
+
 
 Write-Host "Context menu option '$contextMenuName' added successfully!"
