@@ -8,12 +8,6 @@
 - Automatically runs the associated virtual environment's activation script.
 - Ensures the script is run with administrative privileges.
 
-## Prerequisites
-
-- Windows operating system
-- PowerShell
-- Administrator privileges
-
 ## Installation
 
 1. Clone or download this repository to your local machine.
@@ -32,10 +26,10 @@
 
 ## Usage
 
-1. Right-click on any folder in Windows Explorer.
+1. Right-click on the folder containing the virtual environment in Windows Explorer.
 2. Select the "Activate VEnv" option from the context menu.
 3. The script will:
-   - Check if the folder contains a `.venv` directory.
+   - Verify that the selected folder is a valid virtual environment directory.
    - Activate the virtual environment in a new PowerShell window.
 
 ## How It Works
@@ -56,15 +50,8 @@ You can customize the following variables in `add_to_context_menu.ps1` to suit y
 
 - The script expects the virtual environment activation script to be located at `.venv\Scripts\Activate.ps1` within the selected folder.
 - The feature requires administrative privileges to modify the Windows Registry.
+- Currently only Windows support.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Feel free to open issues or submit pull requests to improve the functionality of `venv-context-menu`!
-
----
-
-Happy coding! 🎉
