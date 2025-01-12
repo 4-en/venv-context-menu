@@ -52,6 +52,3 @@ You can customize the following variables in `add_to_context_menu.ps1` to suit y
 - The feature requires administrative privileges to modify the Windows Registry.
 - Currently only Windows support.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
