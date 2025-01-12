@@ -51,4 +51,5 @@ You can customize the following variables in `add_to_context_menu.ps1` to suit y
 - The script expects the virtual environment activation script to be located at `.venv\Scripts\Activate.ps1` within the selected folder.
 - The feature requires administrative privileges to modify the Windows Registry.
 - Currently only Windows support.
+- Use [Win11Debloat](https://github.com/Raphire/Win11Debloat) to restore old context menu.
 
